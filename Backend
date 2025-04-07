@@ -1,0 +1,38 @@
+import discord
+import os
+from dotenv import load_dotenv
+import requests
+import json
+
+def get_meme():
+  response = requests.get('https://meme-api.com/gimme')
+  json_data = json.loads(response.text)
+  return json_data['url']
+
+load_dotenv()
+# Load the token from the .env file
+
+class MyClient(discord.Client):
+    async def on_ready(self):
+        print('Logged on as {0}!'.format(self.user))
+
+    # responding to messages
+    async def on_message(self, message):
+        # don't respond to ourselves
+        if message.author == self.user:
+            return
+
+        # Respond to a specific command
+        if message.content.startswith('hello'):
+            await message.channel.send('Hello!')
+
+        if message.content.startswith('meme'): 
+            await message.channel.send(get_meme())
+   
+
+intents = discord.Intents.default()
+intents.message_content = True
+
+client = MyClient(intents=intents)
+token = os.getenv('DISCORD_TOKEN') #Getting token from .env file
+client.run(token) #Token
